@@ -2,54 +2,68 @@ const Complaint = require('../models/Complaint');
 const Circular = require('../models/Circular');
 const Resource = require('../models/Resource');
 
+// In-memory array to simulate DB for complaints
+let mockComplaints = [
+    {
+        _id: '1', staffId: 'FAC001', name: 'Prof. John Doe', department: 'CSE', designation: 'Assistant Professor', title: 'Leaking AC', description: 'AC is leaking water on the lab computers.', category: 'Infrastructure', priority: 'High', location: 'Lab 2', status: 'Pending',
+        createdAt: new Date(Date.now() - 86400000).toISOString(),
+        comments: [],
+        submittedBy: { name: 'Prof. John Doe', role: 'faculty' }
+    }
+];
+
 // ---- Complaint Logic ----
 exports.submitComplaint = async (req, res) => {
     try {
-        const { title, description, category, priority, location } = req.body;
-        const complaint = new Complaint({
-            title, description, category, priority, location,
-            submittedBy: req.user.id // Assuming JWT auth middleware
-        });
-        await complaint.save();
-        res.json(complaint);
+        const { staffId, name, department, designation, title, category, priority, location, description, date } = req.body;
+        const newComplaint = {
+            _id: Math.random().toString(36).substring(7),
+            staffId, name, department, designation, title, category, priority, location, description,
+            status: 'Pending',
+            createdAt: date || new Date().toISOString(),
+            comments: [],
+            submittedBy: { name: name || 'Prof. John Doe', role: req.user.role }
+        };
+        mockComplaints.push(newComplaint);
+        res.json(newComplaint);
     } catch (err) { res.status(500).send('Server Error'); }
 };
 
 exports.getComplaints = async (req, res) => {
     try {
         const { status, category } = req.query;
-        let query = {};
+        let filteredComplaints = [...mockComplaints];
 
-        // HOD sees all, Students/Faculty see their own complaints (or potentially all public complaints)
-        // For maintenance, often only HOD assigns, but staff can view progress.
-        if (req.user.role === 'student' || req.user.role === 'faculty') {
-            query.submittedBy = req.user.id;
+        // Ensure HOD sees all complaints, and faculty sees their own (using simplified role check here since it's mocked)
+        if (req.user.role === 'faculty' || req.user.role === 'student') {
+            filteredComplaints = mockComplaints.filter(c => c.submittedBy.role === req.user.role);
         }
 
-        if (status) query.status = status;
-        if (category) query.category = category;
+        if (status) filteredComplaints = filteredComplaints.filter(c => c.status === status);
+        if (category) filteredComplaints = filteredComplaints.filter(c => c.category === category);
 
-        const complaints = await Complaint.find(query).populate('submittedBy', 'name role');
-        res.json(complaints);
+        res.json(filteredComplaints);
     } catch (err) { res.status(500).send('Server Error'); }
 };
 
 exports.updateComplaintStatus = async (req, res) => {
     try {
         const { id } = req.params; // Complaint ID
-        const { status, assignedTo } = req.body; // Update fields
-
-        let complaint = await Complaint.findById(id);
-        if (!complaint) return res.status(404).json({ msg: 'Complaint not found' });
+        const { status, assignedTo, newComment } = req.body; // Update fields
 
         if (req.user.role !== 'hod') return res.status(403).json({ msg: 'Unauthorized' });
 
-        if (status) complaint.status = status;
-        if (assignedTo) complaint.assignedTo = assignedTo;
-        if (status === 'RESOLVED') complaint.resolvedAt = Date.now();
+        const complaintIndex = mockComplaints.findIndex(c => c._id === id);
+        if (complaintIndex === -1) return res.status(404).json({ msg: 'Complaint not found' });
 
-        await complaint.save();
-        res.json(complaint);
+        if (status) mockComplaints[complaintIndex].status = status;
+        if (assignedTo) mockComplaints[complaintIndex].assignedTo = assignedTo;
+        if (newComment) {
+            mockComplaints[complaintIndex].comments = mockComplaints[complaintIndex].comments || [];
+            mockComplaints[complaintIndex].comments.push({ text: newComment, date: new Date().toISOString() });
+        }
+
+        res.json(mockComplaints[complaintIndex]);
     } catch (err) { res.status(500).send('Server Error'); }
 };
 

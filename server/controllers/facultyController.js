@@ -5,7 +5,11 @@ const User = require('../models/User');
 
 exports.getStudents = async (req, res) => {
     try {
-        const students = await User.find({ role: 'student', department: req.user.department });
+        const students = [
+            { _id: 'mock-s1', name: 'Jane Student', email: 'student@college.edu', rollNumber: 'CSE2024001', batch: '2024-2028' },
+            { _id: 'mock-s2', name: 'John Smith', email: 'john@college.edu', rollNumber: 'CSE2024002', batch: '2024-2028' }
+        ];
+
         res.json(students);
     } catch (err) {
         console.error(err.message);
@@ -60,16 +64,10 @@ exports.getPendingVerifications = async (req, res) => {
         // Faculty sees PENDING requests from Students
         // Need to filter by department ideally, but for now show all PENDING student requests
 
-        // Find student IDs in department first if needed
-        // const students = await User.find({ role: 'student', department: req.user.department }).distinct('_id');
-
-        const requests = await Request.find({
-            status: 'PENDING',
-            // submittedBy: { $in: students } 
-        }).populate('submittedBy', 'name role department');
-
-        // Filter in memory or query to only include students
-        const studentRequests = requests.filter(r => r.submittedBy.role === 'student');
+        const studentRequests = [
+            { _id: 'mock-req-1', status: 'PENDING', submittedBy: { name: 'Jane Student', role: 'student', department: 'CSE' }, type: 'LEAVE', reason: 'Medical Checkup' },
+            { _id: 'mock-req-2', status: 'PENDING', submittedBy: { name: 'John Smith', role: 'student', department: 'CSE' }, type: 'BONAFIDE', reason: 'Scholarship Application' }
+        ];
 
         res.json(studentRequests);
     } catch (err) {

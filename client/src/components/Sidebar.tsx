@@ -2,6 +2,11 @@
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { usePathname } from 'next/navigation';
+import {
+    LayoutDashboard, BookOpen, FileText, Bell, Users, UsersRound,
+    MessageSquare, BarChart, CalendarCheck, FileSpreadsheet,
+    CheckSquare, User, LogOut, BookCopy, TrendingUp
+} from 'lucide-react';
 
 export default function Sidebar() {
     const { user, logout } = useAuth();
@@ -11,67 +16,107 @@ export default function Sidebar() {
 
     const links = {
         hod: [
-            { name: 'Dashboard', href: '/dashboard/hod' },
-            { name: 'Academics', href: '/dashboard/academics' }, // New
-            { name: 'Requests', href: '/dashboard/hod/requests' },
-            { name: 'Circulars', href: '/dashboard/hod/circulars' },
-            { name: 'Faculty', href: '/dashboard/hod/faculty' },
-            { name: 'Students', href: '/dashboard/hod/students' },
-            { name: 'Complaints', href: '/dashboard/hod/complaints' },
-            { name: 'Reports', href: '/dashboard/hod/reports' },
+            { name: 'Dashboard', href: '/dashboard/hod', icon: LayoutDashboard },
+            { name: 'Academics', href: '/dashboard/academics', icon: BookOpen },
+            { name: 'Requests', href: '/dashboard/hod/requests', icon: FileText },
+            { name: 'Circulars', href: '/dashboard/hod/circulars', icon: Bell },
+            { name: 'Faculty', href: '/dashboard/hod/faculty', icon: Users },
+            { name: 'Students', href: '/dashboard/hod/students', icon: UsersRound },
+            { name: 'Complaints', href: '/dashboard/hod/complaints', icon: MessageSquare },
+            { name: 'Reports', href: '/dashboard/hod/reports', icon: BarChart },
+            { name: 'Publications', href: '/dashboard/hod/publications', icon: BookCopy },
+            { name: 'R&D Performance', href: '/dashboard/hod/performance', icon: TrendingUp },
         ],
         faculty: [
-            { name: 'Dashboard', href: '/dashboard/faculty' },
-            { name: 'Academics', href: '/dashboard/academics' }, // New
-            { name: 'Attendance', href: '/dashboard/faculty/attendance' },
-            { name: 'Resources', href: '/dashboard/faculty/resources' },
-            { name: 'Complaints', href: '/dashboard/complaints' },
-            { name: 'Verify Requests', href: '/dashboard/faculty/requests' },
-            { name: 'My Profile', href: '/dashboard/faculty/profile' },
+            { name: 'Dashboard', href: '/dashboard/faculty', icon: LayoutDashboard },
+            { name: 'Academics', href: '/dashboard/academics', icon: BookOpen },
+            { name: 'Attendance', href: '/dashboard/faculty/attendance', icon: CalendarCheck },
+            { name: 'Resources', href: '/dashboard/faculty/resources', icon: FileSpreadsheet },
+            { name: 'Verify Requests', href: '/dashboard/faculty/requests', icon: CheckSquare },
+            { name: 'Complaints', href: '/dashboard/complaints', icon: MessageSquare },
+            { name: 'My Profile', href: '/dashboard/faculty/profile', icon: User },
         ],
         student: [
-            { name: 'Dashboard', href: '/dashboard/student' },
-            { name: 'Academics', href: '/dashboard/academics' }, // New
-            { name: 'Notices', href: '/dashboard/student/circulars' },
-            { name: 'My Attendance', href: '/dashboard/student/attendance' },
-            { name: 'Apply Leave/OD', href: '/dashboard/student/apply' },
-            { name: 'Complaints', href: '/dashboard/complaints' },
-            { name: 'Results', href: '/dashboard/student/results' },
+            { name: 'Dashboard', href: '/dashboard/student', icon: LayoutDashboard },
+            { name: 'Academics', href: '/dashboard/academics', icon: BookOpen },
+            { name: 'Notices', href: '/dashboard/student/circulars', icon: Bell },
+            { name: 'My Attendance', href: '/dashboard/student/attendance', icon: CalendarCheck },
+            { name: 'Apply Leave/OD', href: '/dashboard/student/apply', icon: FileText },
+            { name: 'Complaints', href: '/dashboard/complaints', icon: MessageSquare },
+            { name: 'Results', href: '/dashboard/student/results', icon: BarChart },
         ]
     };
 
-    const roleLinks = links[user.role] || [];
+    const roleLinks = links[user.role as keyof typeof links] || [];
+
+    // Fallback names for mock users
+    const displayName = user.name || (user.role === 'hod' ? 'Dr. Subramani V' : user.role === 'faculty' ? 'Prof. Anitha' : 'Student Name');
+    const displayRole = user.role === 'hod' ? 'HOD' : user.role === 'faculty' ? 'Faculty' : 'Student';
+    const displayDept = user.department || 'CSE';
 
     return (
-        <aside className="w-64 bg-gray-900 text-gray-300 h-screen fixed top-0 left-0 flex flex-col shadow-lg z-50">
-            <div className="p-6 text-xl font-bold text-white border-b border-gray-800">
-                <span>HOD System</span>
+        <aside className="w-64 bg-slate-900 border-r border-slate-800 h-screen fixed top-0 left-0 flex flex-col z-50">
+            {/* 1. Sidebar Header */}
+            <div className="h-20 flex items-center px-6 border-b border-slate-800 shrink-0">
+                <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
+                        <BookOpen size={18} className="text-white" strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h1 className="text-lg font-black text-white tracking-wide">ERP System</h1>
+                        <p className="text-[10px] text-blue-400 font-bold uppercase tracking-widest">{displayDept} Department</p>
+                    </div>
+                </div>
             </div>
 
-            <nav className="flex-1 p-4 space-y-2">
-                {roleLinks.map((link) => (
-                    <Link
-                        key={link.href}
-                        href={link.href}
-                        className={`block px-4 py-3 rounded-lg transition-colors ${pathname === link.href
-                            ? 'bg-blue-600 text-white'
-                            : 'hover:bg-gray-800 hover:text-white'
-                            }`}
-                    >
-                        {link.name}
-                    </Link>
-                ))}
+            {/* 2. Sidebar Navigation (Scrollable) */}
+            <nav className="flex-1 overflow-y-auto p-4 space-y-1.5 custom-scrollbar">
+                {roleLinks.map((link) => {
+                    const isActive = pathname === link.href || (pathname.startsWith(`${link.href}/`) && link.name !== 'Dashboard');
+                    return (
+                        <Link
+                            key={link.href}
+                            href={link.href}
+                            className={`relative flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm group ${isActive
+                                ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-lg shadow-blue-500/25 before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:h-8 before:w-1.5 before:bg-white before:rounded-r-full before:shadow-[0_0_10px_rgba(255,255,255,0.5)] overflow-hidden'
+                                : 'text-slate-400 hover:bg-slate-800/70 hover:text-slate-200'
+                                }`}
+                        >
+                            <link.icon
+                                size={18}
+                                strokeWidth={isActive ? 2.5 : 2}
+                                className={`transition-colors relative z-10 ${isActive ? 'text-white drop-shadow-md' : 'text-slate-500 group-hover:text-blue-400'}`}
+                            />
+                            <span className="relative z-10 tracking-wide">{link.name}</span>
+
+                            {/* Subtle hover effect background for inactive items */}
+                            {!isActive && (
+                                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-slate-800/0 to-slate-800/0 group-hover:from-slate-800/50 group-hover:to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                            )}
+                        </Link>
+                    )
+                })}
             </nav>
 
-            <div className="p-4 border-t border-gray-800">
-                <div className="mb-4 px-4">
-                    <p className="text-sm font-semibold text-white">{user.name}</p>
-                    <p className="text-xs text-gray-500 capitalize">{user.role} - {user.department}</p>
+            {/* 3. Sidebar Footer (Fixed at bottom) */}
+            <div className="p-5 border-t border-slate-800 bg-slate-900/50 backdrop-blur shrink-0">
+                {/* Profile Section */}
+                <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-md ring-2 ring-slate-800">
+                        {displayName.charAt(0)}
+                    </div>
+                    <div className="overflow-hidden">
+                        <p className="text-sm font-bold text-slate-200 truncate">{displayName}</p>
+                        <p className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider truncate">{displayRole} - {displayDept}</p>
+                    </div>
                 </div>
+
+                {/* Logout Button */}
                 <button
                     onClick={logout}
-                    className="w-full bg-red-600 hover:bg-red-500 text-white py-2 rounded transition-colors"
+                    className="w-full flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 py-2.5 px-4 rounded-xl transition-all font-bold text-sm border border-red-500/20 hover:border-red-500/30 group"
                 >
+                    <LogOut size={16} strokeWidth={2.5} className="group-hover:-translate-x-0.5 transition-transform" />
                     Logout
                 </button>
             </div>
