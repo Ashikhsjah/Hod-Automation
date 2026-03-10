@@ -80,22 +80,29 @@ export default function AcademicsPage() {
         { date: '01 Mar 2026', action: 'Approved 15 Lesson Plans', user: 'HOD' },
     ];
 
-    const facultyMonitoring = [
-        { name: 'Dr. V. S. Thiyagarajan', subjects: 2, lessonPlan: 'Completed', attendance: 'Completed', marks: 'Pending', notes: 'Completed', logbook: 'Completed' },
-        { name: 'Ms. G. Vinitha', subjects: 2, lessonPlan: 'Completed', attendance: 'Completed', marks: 'Completed', notes: 'Pending', logbook: 'Completed' },
-        { name: 'Ms. K. Vani Shree', subjects: 2, lessonPlan: 'Pending', attendance: 'Completed', marks: 'Missing', notes: 'Pending', logbook: 'Pending' },
-        { name: 'Ms. S. Gayathri', subjects: 1, lessonPlan: 'Completed', attendance: 'Missing', marks: 'Missing', notes: 'Completed', logbook: 'Missing' },
-        { name: 'Dr. Subramani V', subjects: 3, lessonPlan: 'Completed', attendance: 'Completed', marks: 'Completed', notes: 'Completed', logbook: 'Completed' },
+    const facultyMonitoringData = [
+        { name: 'Dr. V. S. Thiyagarajan', year: '2nd Year', lessonPlan: 100, attendance: 85, marks: 45, notes: 90, logbook: 75 },
+        { name: 'Ms. G. Vinitha', year: '3rd Year', lessonPlan: 80, attendance: 100, marks: 100, notes: 20, logbook: 90 },
+        { name: 'Ms. K. Vani Shree', year: '1st Year', lessonPlan: 30, attendance: 90, marks: 0, notes: 40, logbook: 30 },
+        { name: 'Ms. S. Gayathri', year: '4th Year', lessonPlan: 100, attendance: 0, marks: 0, notes: 100, logbook: 0 },
+        { name: 'Dr. Subramani V', year: '2nd Year', lessonPlan: 100, attendance: 100, marks: 100, notes: 100, logbook: 100 },
     ];
 
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case 'Completed': return 'bg-green-100 text-green-700 border-green-200';
-            case 'Pending': return 'bg-orange-100 text-orange-700 border-orange-200';
-            case 'Missing': return 'bg-red-100 text-red-700 border-red-200';
-            default: return 'bg-gray-100 text-gray-700 border-gray-200';
-        }
+    const getProgressColor = (percent: number) => {
+        if (percent >= 80) return 'bg-green-500';
+        if (percent >= 50) return 'bg-yellow-500';
+        return 'bg-red-500';
     };
+
+    const [selectedYear, setSelectedYear] = useState('All Years');
+    const [selectedFacultyMember, setSelectedFacultyMember] = useState('All Faculty');
+
+    const facultyList = Array.from(new Set(facultyMonitoringData.map(f => f.name)));
+    const filteredFacultyMonitoring = facultyMonitoringData.filter(f => {
+        const matchesYear = selectedYear === 'All Years' || f.year === selectedYear;
+        const matchesFaculty = selectedFacultyMember === 'All Faculty' || f.name === selectedFacultyMember;
+        return matchesYear && matchesFaculty;
+    });
 
     return (
         <div className="p-8 bg-gray-50 min-h-screen text-gray-800 font-sans">
@@ -170,48 +177,119 @@ export default function AcademicsPage() {
                 {/* Grid for Table and Alerts */}
                 <div className="grid grid-cols-1 gap-10">
                     {/* Faculty Academic Responsibilities Monitoring */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex items-center justify-between">
+                    <div className="bg-white rounded-2xl shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden">
+                        <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex flex-col md:flex-row items-center justify-between gap-4">
                             <h2 className="text-lg font-extrabold text-gray-800 flex items-center gap-3">
                                 <ClipboardList className="text-blue-600" size={20} />
-                                Faculty Academic Responsibilities Monitoring
+                                Faculty Academic Progress Tracker
                             </h2>
+                            <div className="flex items-center gap-4 w-full md:w-auto">
+                                <select
+                                    className="bg-white border border-gray-200 text-sm font-semibold p-2.5 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition w-full md:w-48 shadow-sm"
+                                    value={selectedYear}
+                                    onChange={(e) => setSelectedYear(e.target.value)}
+                                >
+                                    <option>All Years</option>
+                                    <option>1st Year</option>
+                                    <option>2nd Year</option>
+                                    <option>3rd Year</option>
+                                    <option>4th Year</option>
+                                </select>
+                                <select
+                                    className="bg-white border border-gray-200 text-sm font-semibold p-2.5 rounded-xl text-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition w-full md:w-48 shadow-sm"
+                                    value={selectedFacultyMember}
+                                    onChange={(e) => setSelectedFacultyMember(e.target.value)}
+                                >
+                                    <option>All Faculty</option>
+                                    {facultyList.map(name => <option key={name}>{name}</option>)}
+                                </select>
+                            </div>
                         </div>
                         <div className="w-full overflow-x-auto">
-                            <table className="w-full text-left table-auto">
+                            <table className="w-full text-left table-fixed">
                                 <thead className="bg-white border-b border-gray-100">
                                     <tr>
-                                        <th className="p-4 px-6 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider">Faculty Name</th>
-                                        <th className="p-4 px-6 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider text-center">Subjects Assigned</th>
-                                        <th className="p-4 px-6 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider text-center">Lesson Plan</th>
-                                        <th className="p-4 px-6 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider text-center">Attendance</th>
-                                        <th className="p-4 px-6 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider text-center">Marks Upload</th>
-                                        <th className="p-4 px-6 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider text-center">Notes Uploaded</th>
-                                        <th className="p-4 px-6 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider text-center">Logbook Status</th>
+                                        <th className="p-4 px-5 w-44 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider">Faculty Details</th>
+                                        <th className="p-4 px-3 w-32 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider">Lesson Plan</th>
+                                        <th className="p-4 px-3 w-32 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider">Attendance</th>
+                                        <th className="p-4 px-3 w-32 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider">Marks Upload</th>
+                                        <th className="p-4 px-3 w-32 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider">Notes Uploaded</th>
+                                        <th className="p-4 px-3 w-32 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider">Logbook</th>
+                                        <th className="p-4 px-4 w-40 text-[11px] font-extrabold text-gray-400 uppercase tracking-wider text-right">Overall Performance</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-50">
-                                    {facultyMonitoring.map((faculty, i) => (
-                                        <tr key={i} className="hover:bg-gray-50/80 transition-colors">
-                                            <td className="p-4 px-6 font-bold text-gray-900 text-sm">{faculty.name}</td>
-                                            <td className="p-4 px-6 text-center font-black text-gray-600">{faculty.subjects}</td>
-                                            <td className="p-4 px-6 text-center">
-                                                <span className={`px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-md border ${getStatusColor(faculty.lessonPlan)}`}>{faculty.lessonPlan}</span>
-                                            </td>
-                                            <td className="p-4 px-6 text-center">
-                                                <span className={`px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-md border ${getStatusColor(faculty.attendance)}`}>{faculty.attendance}</span>
-                                            </td>
-                                            <td className="p-4 px-6 text-center">
-                                                <span className={`px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-md border ${getStatusColor(faculty.marks)}`}>{faculty.marks}</span>
-                                            </td>
-                                            <td className="p-4 px-6 text-center">
-                                                <span className={`px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-md border ${getStatusColor(faculty.notes)}`}>{faculty.notes}</span>
-                                            </td>
-                                            <td className="p-4 px-6 text-center">
-                                                <span className={`px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-widest rounded-md border ${getStatusColor(faculty.logbook)}`}>{faculty.logbook}</span>
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {filteredFacultyMonitoring.map((faculty, i) => {
+                                        const overall = Math.round((faculty.lessonPlan + faculty.attendance + faculty.marks + faculty.notes + faculty.logbook) / 5);
+                                        const overallColor = getProgressColor(overall);
+
+                                        return (
+                                            <tr key={i} className="hover:bg-gray-50/80 transition-colors">
+                                                <td className="p-4 px-5">
+                                                    <div className="font-bold text-gray-900 text-sm">{faculty.name}</div>
+                                                    <div className="text-xs text-gray-500 font-medium mt-1 bg-gray-100 inline-block px-2 py-0.5 rounded uppercase tracking-wider">{faculty.year}</div>
+                                                </td>
+                                                <td className="p-4 px-3">
+                                                    <div className="flex flex-col gap-1.5 w-full">
+                                                        <div className="flex justify-between items-center text-xs font-bold text-gray-700">
+                                                            <span>{faculty.lessonPlan}%</span>
+                                                        </div>
+                                                        <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                                            <div className={`h-full rounded-full ${getProgressColor(faculty.lessonPlan)} transition-all duration-500`} style={{ width: `${faculty.lessonPlan}%` }}></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="p-4 px-3">
+                                                    <div className="flex flex-col gap-1.5 w-full">
+                                                        <div className="flex justify-between items-center text-xs font-bold text-gray-700">
+                                                            <span>{faculty.attendance}%</span>
+                                                        </div>
+                                                        <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                                            <div className={`h-full rounded-full ${getProgressColor(faculty.attendance)} transition-all duration-500`} style={{ width: `${faculty.attendance}%` }}></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="p-4 px-3">
+                                                    <div className="flex flex-col gap-1.5 w-full">
+                                                        <div className="flex justify-between items-center text-xs font-bold text-gray-700">
+                                                            <span>{faculty.marks}%</span>
+                                                        </div>
+                                                        <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                                            <div className={`h-full rounded-full ${getProgressColor(faculty.marks)} transition-all duration-500`} style={{ width: `${faculty.marks}%` }}></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="p-4 px-3">
+                                                    <div className="flex flex-col gap-1.5 w-full">
+                                                        <div className="flex justify-between items-center text-xs font-bold text-gray-700">
+                                                            <span>{faculty.notes}%</span>
+                                                        </div>
+                                                        <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                                            <div className={`h-full rounded-full ${getProgressColor(faculty.notes)} transition-all duration-500`} style={{ width: `${faculty.notes}%` }}></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="p-4 px-3">
+                                                    <div className="flex flex-col gap-1.5 w-full">
+                                                        <div className="flex justify-between items-center text-xs font-bold text-gray-700">
+                                                            <span>{faculty.logbook}%</span>
+                                                        </div>
+                                                        <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
+                                                            <div className={`h-full rounded-full ${getProgressColor(faculty.logbook)} transition-all duration-500`} style={{ width: `${faculty.logbook}%` }}></div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="p-4 px-4 text-right">
+                                                    <div className="flex items-center justify-end gap-3">
+                                                        <div className="w-24 bg-gray-100 h-3 rounded-full overflow-hidden shadow-inner">
+                                                            <div className={`h-full rounded-full ${overallColor} transition-all duration-500 shadow-sm`} style={{ width: `${overall}%` }}></div>
+                                                        </div>
+                                                        <span className={`text-sm font-black w-10 text-right ${overall >= 80 ? 'text-green-700' : overall >= 50 ? 'text-yellow-700' : 'text-red-700'}`}>{overall}%</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
