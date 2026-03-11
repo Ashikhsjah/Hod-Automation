@@ -2,13 +2,17 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
-import { Users, Building, UserCircle } from 'lucide-react';
+import { Users, Building, UserCircle, Eye, EyeOff } from 'lucide-react';
+import { Poppins } from 'next/font/google';
+
+const poppins = Poppins({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'] });
 
 export default function SplitLoginPage() {
   const { login } = useAuth();
   const [selectedRole, setSelectedRole] = useState<'faculty' | 'hod' | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
   const handleRoleSelect = (role: 'faculty' | 'hod') => {
@@ -54,7 +58,7 @@ export default function SplitLoginPage() {
 
   if (!selectedRole) {
     return (
-      <div className="relative min-h-screen flex flex-col overflow-hidden font-sans">
+      <div className={`relative min-h-screen flex flex-col overflow-hidden ${poppins.className}`}>
         {/* Background Image Layer */}
         <div
           className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-700 blur-[3px]"
@@ -136,7 +140,7 @@ export default function SplitLoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden font-sans">
+    <div className={`relative min-h-screen flex items-center justify-center p-6 overflow-hidden ${poppins.className}`}>
       {/* Background Image Layer */}
       <div
         className="absolute inset-0 z-0 bg-cover bg-center transition-all duration-700 blur-[4px]"
@@ -172,10 +176,10 @@ export default function SplitLoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-gray-700 font-bold mb-2 text-xs uppercase tracking-widest">Email Address</label>
+              <label className="block text-gray-900 font-bold mb-2 text-xs uppercase tracking-widest">Email Address</label>
               <input
                 type="email"
-                className={`w-full p-4 rounded-2xl bg-gray-100 border border-gray-200 outline-none transition-all shadow-inner focus:bg-white focus:ring-4 ${selectedRole === 'faculty' ? 'focus:border-purple-500 focus:ring-purple-500/20' : 'focus:border-red-500 focus:ring-red-500/20'}`}
+                className={`w-full p-4 rounded-2xl bg-gray-100 border border-gray-200 outline-none transition-all shadow-inner focus:bg-white focus:ring-4 text-gray-900 font-semibold placeholder:text-gray-500 placeholder:font-medium opacity-100 ${selectedRole === 'faculty' ? 'focus:border-purple-500 focus:ring-purple-500/20' : 'focus:border-red-500 focus:ring-red-500/20'}`}
                 value={email}
                 placeholder="email@college.edu"
                 onChange={(e) => setEmail(e.target.value)}
@@ -183,15 +187,24 @@ export default function SplitLoginPage() {
               />
             </div>
             <div>
-              <label className="block text-gray-700 font-bold mb-2 text-xs uppercase tracking-widest">Password</label>
-              <input
-                type="password"
-                className={`w-full p-4 rounded-2xl bg-gray-100 border border-gray-200 outline-none transition-all shadow-inner focus:bg-white focus:ring-4 ${selectedRole === 'faculty' ? 'focus:border-purple-500 focus:ring-purple-500/20' : 'focus:border-red-500 focus:ring-red-500/20'}`}
-                value={password}
-                placeholder="••••••••"
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <label className="block text-gray-900 font-bold mb-2 text-xs uppercase tracking-widest">Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  className={`w-full p-4 pr-12 rounded-2xl bg-gray-100 border border-gray-200 outline-none transition-all shadow-inner focus:bg-white focus:ring-4 text-gray-900 font-semibold placeholder:text-gray-500 placeholder:font-medium opacity-100 ${selectedRole === 'faculty' ? 'focus:border-purple-500 focus:ring-purple-500/20' : 'focus:border-red-500 focus:ring-red-500/20'}`}
+                  value={password}
+                  placeholder="••••••••"
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
             <button
               type="submit"

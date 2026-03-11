@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard, BookOpen, FileText, Bell, Users, UsersRound,
     MessageSquare, BarChart, CalendarCheck, FileSpreadsheet,
-    CheckSquare, User, LogOut, BookCopy, TrendingUp
+    CheckSquare, User, LogOut, BookCopy, TrendingUp, LineChart
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -23,9 +23,11 @@ export default function Sidebar() {
             { name: 'Faculty', href: '/dashboard/hod/faculty', icon: Users },
             { name: 'Students', href: '/dashboard/hod/students', icon: UsersRound },
             { name: 'Complaints', href: '/dashboard/hod/complaints', icon: MessageSquare },
+            { name: 'Student Feedback', href: '/dashboard/hod/student-complaints', icon: MessageSquare },
             { name: 'Reports', href: '/dashboard/hod/reports', icon: BarChart },
             { name: 'Publications', href: '/dashboard/hod/publications', icon: BookCopy },
             { name: 'R&D Performance', href: '/dashboard/hod/performance', icon: TrendingUp },
+            { name: 'Staff Performance', href: '/dashboard/hod/staff-performance', icon: LineChart },
         ],
         faculty: [
             { name: 'Dashboard', href: '/dashboard/faculty', icon: LayoutDashboard },

@@ -3,10 +3,15 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import Link from 'next/link';
+import { Eye, EyeOff } from 'lucide-react';
+import { Poppins } from 'next/font/google';
+
+const poppins = Poppins({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const { login } = useAuth();
     const [error, setError] = useState('');
 
@@ -31,7 +36,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className={`min-h-screen flex items-center justify-center bg-gray-50 ${poppins.className}`}>
             <Link href="/" className="absolute top-6 left-6 text-gray-500 hover:text-gray-900 flex items-center gap-2">
                 &larr; Back to Home
             </Link>
@@ -46,10 +51,10 @@ export default function LoginPage() {
 
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                        <label className="block mb-1 text-sm font-semibold text-gray-700">Email Address</label>
+                        <label className="block mb-1 text-sm font-bold text-gray-900">Email Address</label>
                         <input
                             type="email"
-                            className="w-full p-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white outline-none transition text-gray-900"
+                            className="w-full p-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white outline-none transition text-gray-900 font-semibold placeholder:text-gray-500 placeholder:font-medium opacity-100"
                             placeholder="name@college.edu"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -57,15 +62,24 @@ export default function LoginPage() {
                         />
                     </div>
                     <div>
-                        <label className="block mb-1 text-sm font-semibold text-gray-700">Password</label>
-                        <input
-                            type="password"
-                            className="w-full p-3 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white outline-none transition text-gray-900"
-                            placeholder="••••••••"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
+                        <label className="block mb-1 text-sm font-bold text-gray-900">Password</label>
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                className="w-full p-3 pr-12 rounded-lg bg-gray-50 border border-gray-200 focus:border-blue-500 focus:bg-white outline-none transition text-gray-900 font-semibold placeholder:text-gray-500 placeholder:font-medium opacity-100"
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors p-1"
+                            >
+                                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                            </button>
+                        </div>
                     </div>
                     <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition shadow-md shadow-blue-600/20">
                         Sign In

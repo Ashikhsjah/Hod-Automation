@@ -5,24 +5,44 @@ const Resource = require('../models/Resource');
 // In-memory array to simulate DB for complaints
 let mockComplaints = [
     {
-        _id: '1', staffId: 'FAC001', name: 'Prof. John Doe', department: 'CSE', designation: 'Assistant Professor', title: 'Leaking AC', description: 'AC is leaking water on the lab computers.', category: 'Infrastructure', priority: 'High', location: 'Lab 2', status: 'Pending',
+        _id: '1', staffId: 'FAC001', name: 'Prof. John Doe', department: 'CSE', designation: 'Assistant Professor', title: 'Leaking AC', description: 'AC is leaking water on the lab computers.', category: 'Infrastructure', priority: 'High', location: 'Lab 2', status: 'Pending', type: 'Staff Complaint',
         createdAt: new Date(Date.now() - 86400000).toISOString(),
         comments: [],
         submittedBy: { name: 'Prof. John Doe', role: 'faculty' }
+    },
+    {
+        _id: '2', registerNumber: 'REG10045', name: 'Alex Johnson', department: 'CSE', yearSection: 'III Year / B Sec', title: 'More books needed in library', description: 'The library needs more copies of "Introduction to Algorithms". Most of the time they are successfully issued out so there are none available.', category: 'Academic Issue', priority: 'Medium', type: 'Student Feedback', isAnonymous: false, status: 'Pending',
+        createdAt: new Date(Date.now() - 172800000).toISOString(),
+        comments: [],
+        submittedBy: { name: 'Alex Johnson', role: 'student' }
+    },
+    {
+        _id: '3', registerNumber: 'REG10099', name: 'Anonymous', department: 'ECE', yearSection: 'IV Year / A Sec', title: 'Network instability in Block C', description: 'Wi-Fi keeps dropping randomly during our lab hours. This affects our online assignments.', category: 'Infrastructure', priority: 'High', type: 'Student Feedback', isAnonymous: true, status: 'Under Review',
+        createdAt: new Date(Date.now() - 3600000).toISOString(),
+        comments: [{ text: 'We have contacted the IT department to check the routers in Block C.', date: new Date().toISOString() }],
+        submittedBy: { name: 'Anonymous', role: 'student' }
+    },
+    {
+        _id: '4', registerNumber: 'REG10234', name: 'Samantha Smith', department: 'MECH', yearSection: 'II Year / C Sec', title: 'Quality of Food in Canteen', description: 'The hygiene in the canteen could be better. Also, please add more vegetarian options.', category: 'General Feedback', priority: 'Low', type: 'Student Feedback', isAnonymous: false, status: 'Resolved',
+        createdAt: new Date(Date.now() - 432000000).toISOString(),
+        comments: [{ text: 'Forwarded to the catering committee. They have promised to improve options starting next week.', date: new Date(Date.now() - 345600000).toISOString() }],
+        submittedBy: { name: 'Samantha Smith', role: 'student' }
     }
 ];
 
 // ---- Complaint Logic ----
 exports.submitComplaint = async (req, res) => {
     try {
-        const { staffId, name, department, designation, title, category, priority, location, description, date } = req.body;
+        const { staffId, name, department, designation, title, category, priority, location, description, date, type, registerNumber, yearSection, isAnonymous } = req.body;
         const newComplaint = {
             _id: Math.random().toString(36).substring(7),
             staffId, name, department, designation, title, category, priority, location, description,
+            type: type || 'Staff Complaint',
+            registerNumber, yearSection, isAnonymous,
             status: 'Pending',
             createdAt: date || new Date().toISOString(),
             comments: [],
-            submittedBy: { name: name || 'Prof. John Doe', role: req.user.role }
+            submittedBy: { name: isAnonymous ? 'Anonymous' : (name || 'Anonymous'), role: req.user.role }
         };
         mockComplaints.push(newComplaint);
         res.json(newComplaint);
@@ -31,16 +51,17 @@ exports.submitComplaint = async (req, res) => {
 
 exports.getComplaints = async (req, res) => {
     try {
-        const { status, category } = req.query;
+        const { status, category, type } = req.query;
         let filteredComplaints = [...mockComplaints];
 
-        // Ensure HOD sees all complaints, and faculty sees their own (using simplified role check here since it's mocked)
+        // Ensure HOD sees all complaints, and faculty/student sees their own
         if (req.user.role === 'faculty' || req.user.role === 'student') {
             filteredComplaints = mockComplaints.filter(c => c.submittedBy.role === req.user.role);
         }
 
         if (status) filteredComplaints = filteredComplaints.filter(c => c.status === status);
         if (category) filteredComplaints = filteredComplaints.filter(c => c.category === category);
+        if (type) filteredComplaints = filteredComplaints.filter(c => c.type === type);
 
         res.json(filteredComplaints);
     } catch (err) { res.status(500).send('Server Error'); }
