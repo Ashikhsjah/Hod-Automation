@@ -6,7 +6,7 @@ export default function StudentApply() {
     const [description, setDescription] = useState('');
     const [date, setDate] = useState('');
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         alert(`Application Submitted: ${requestType} on ${date}`);
         setDescription('');
