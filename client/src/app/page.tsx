@@ -26,6 +26,19 @@ export default function SplitLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // --- Mock Login for Development/Testing ---
+    if (email === 'incharge@college.edu' && password === 'incharge123') {
+      login('mock-token-ci', {
+        id: 'ci-001',
+        name: 'Prof. Rajesh (CI)',
+        role: 'class_incharge',
+        department: 'CSE'
+      });
+      return;
+    }
+    // ------------------------------------------
+
     try {
       const res = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
@@ -42,7 +55,10 @@ export default function SplitLoginPage() {
 
       const data = await res.json();
       if (res.ok) {
-        if (data.user.role !== selectedRole) {
+        // Allow class_incharge to log in through the faculty portal
+        const isRoleCorrect = data.user.role === selectedRole || (selectedRole === 'faculty' && data.user.role === 'class_incharge');
+        
+        if (!isRoleCorrect) {
           setError(`Please log in as a ${selectedRole} account.`);
           return;
         }

@@ -1,106 +1,89 @@
 "use client";
+import React from 'react';
+import { User, Mail, Briefcase, GraduationCap, Award, BookOpen, Clock, Save } from 'lucide-react';
 
 export default function FacultyProfile() {
     return (
-        <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-gray-100 overflow-hidden p-10">
-            <div className="flex items-center gap-8 mb-10 pb-8 border-b border-gray-100">
-                <div className="w-28 h-28 bg-gradient-to-br from-indigo-700 to-blue-600 rounded-full flex items-center justify-center text-4xl font-extrabold text-white shadow-lg shadow-blue-500/30 ring-4 ring-blue-50">
-                    VT
-                </div>
+        <div className="p-8 bg-gray-50 min-h-screen font-sans">
+            <div className="flex justify-between items-center mb-10">
                 <div>
-                    <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight">Dr. V. S. Thiyagarajan</h1>
-                    <p className="text-gray-600 text-lg font-medium mt-1">Professor, Department of Computer Science and Engineering</p>
-                    <span className="inline-flex items-center mt-3 px-4 py-1.5 bg-blue-50 text-blue-700 border border-blue-100 rounded-full text-xs font-bold tracking-widest uppercase shadow-sm">
-                        Faculty ID: FAC1001
-                    </span>
+                    <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Faculty Profile</h1>
+                    <p className="text-gray-500 mt-1 font-medium text-sm">Personal and Professional Information</p>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
-                    <h2 className="text-lg font-extrabold text-gray-800 mb-5 flex items-center gap-2">
-                        <span className="w-2 h-6 bg-blue-600 rounded-full inline-block"></span> Academic Information
-                    </h2>
-                    <ul className="space-y-4">
-                        <li className="flex justify-between items-center border-b border-gray-200/60 pb-3">
-                            <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Qualification:</span>
-                            <span className="font-extrabold text-gray-900">M.E., Ph.D.</span>
-                        </li>
-                        <li className="flex justify-between items-center border-b border-gray-200/60 pb-3">
-                            <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Specialization:</span>
-                            <span className="font-extrabold text-gray-900">Cyber Security</span>
-                        </li>
-                        <li className="flex justify-between items-center">
-                            <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Experience:</span>
-                            <span className="font-extrabold text-gray-900 bg-gray-100 px-3 py-1 rounded-lg">18 Years</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
-                    <h2 className="text-lg font-extrabold text-gray-800 mb-5 flex items-center gap-2">
-                        <span className="w-2 h-6 bg-purple-600 rounded-full inline-block"></span> Current Load
-                    </h2>
-                    <ul className="space-y-4">
-                        <li className="flex justify-between items-center border-b border-gray-200/60 pb-3">
-                            <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Class In-charge:</span>
-                            <span className="font-extrabold text-gray-900">III Year CSE – A</span>
-                        </li>
-                        <li className="flex justify-between items-center border-b border-gray-200/60 pb-3">
-                            <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Subjects Handled:</span>
-                            <span className="font-extrabold text-gray-900 bg-gray-100 px-3 py-1 rounded-lg">2</span>
-                        </li>
-                        <li className="flex justify-between items-center">
-                            <span className="text-sm font-bold text-gray-500 uppercase tracking-widest">Publication Target:</span>
-                            <span className="font-extrabold text-orange-600 bg-orange-50 px-3 py-1 rounded-lg">1 Pending</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            {/* Research Summary Section */}
-            <div className="mt-10 bg-gray-50/50 p-6 rounded-2xl border border-gray-100">
-                <h2 className="text-lg font-extrabold text-gray-800 mb-5 flex items-center gap-2">
-                    <span className="w-2 h-6 bg-green-500 rounded-full inline-block"></span> Research & Publications Summary
-                </h2>
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
-                    <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center">
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Total</p>
-                        <p className="text-2xl font-black text-gray-900">12</p>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Profile Card */}
+                <div className="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-8 flex flex-col items-center">
+                    <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 mb-6 flex items-center justify-center text-white text-4xl font-black shadow-xl ring-4 ring-white">
+                        A
                     </div>
-                    <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center">
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Scopus</p>
-                        <p className="text-2xl font-black text-indigo-600">5</p>
-                    </div>
-                    <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center">
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">SCI</p>
-                        <p className="text-2xl font-black text-blue-600">3</p>
-                    </div>
-                    <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm text-center">
-                        <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Conference</p>
-                        <p className="text-2xl font-black text-purple-600">4</p>
-                    </div>
-                </div>
-
-                <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm">
-                    <div className="flex justify-between items-end mb-2">
-                        <div>
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Publication Target Progress (Current Academic Year)</p>
-                            <p className="text-sm font-semibold text-gray-700 mt-1">2 Achieved / 3 Target</p>
+                    <h2 className="text-2xl font-black text-gray-900 mb-1">Prof. Anitha</h2>
+                    <p className="text-blue-600 font-bold uppercase tracking-widest text-xs mb-6">Assistant Professor</p>
+                    
+                    <div className="w-full space-y-4 mb-8">
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                            <Mail size={18} className="text-gray-400" />
+                            <span className="text-sm font-semibold text-gray-700">anitha@college.edu</span>
                         </div>
-                        <span className="text-xl font-black text-green-500">66%</span>
-                    </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
-                        <div className="bg-green-500 h-2.5 rounded-full" style={{ width: '66%' }}></div>
+                        <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                            <Briefcase size={18} className="text-gray-400" />
+                            <span className="text-sm font-semibold text-gray-700">CSE Department</span>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div className="mt-10 pt-6 border-t border-gray-100 flex justify-end">
-                <button className="bg-blue-600 text-white font-bold text-sm px-8 py-3 rounded-xl hover:bg-blue-700 transition tracking-wide shadow-md shadow-blue-500/20 hover:shadow-lg hover:-translate-y-0.5">
-                    Edit Profile
-                </button>
+                {/* Edit Form */}
+                <div className="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+                    <div className="flex justify-between items-center mb-8 border-b border-gray-50 pb-4">
+                        <h3 className="text-xl font-black text-gray-900 flex items-center gap-2">
+                            <User size={20} className="text-blue-600" />
+                            General Information
+                        </h3>
+                    </div>
+                    
+                    <form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Faculty Name</label>
+                            <input type="text" className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-sm" defaultValue="Prof. Anitha" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Email Address</label>
+                            <input type="email" className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-sm" defaultValue="anitha@college.edu" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Designation</label>
+                            <input type="text" className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-sm" defaultValue="Assistant Professor" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Department</label>
+                            <input type="text" className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-sm" defaultValue="CSE" />
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                            <label className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Subjects Handling</label>
+                            <input type="text" className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-sm" defaultValue="Data Structures, DBMS, Operating Systems" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Experience</label>
+                            <input type="text" className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-sm" defaultValue="8 Years" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Qualification</label>
+                            <input type="text" className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-sm" defaultValue="M.E., Ph.D." />
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                            <label className="text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Research Area</label>
+                            <input type="text" className="w-full p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none font-bold text-sm" defaultValue="Machine Learning, Cloud Computing" />
+                        </div>
+
+                        <div className="md:col-span-2 flex justify-end mt-4">
+                            <button className="flex items-center gap-2 px-8 py-3 bg-blue-600 text-white rounded-xl shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition font-black uppercase text-xs tracking-widest">
+                                <Save size={16} />
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     );

@@ -7,6 +7,7 @@ import {
     CheckCircle2, XCircle, FileText, Download, Activity, FileWarning, ArrowUpRight, ArrowDownRight, MoreHorizontal, Bell, Plus, CheckCircle
 } from 'lucide-react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Sector } from 'recharts';
+import AnimatedPage from '@/components/AnimatedPage';
 
 export default function HodDashboard() {
     const { user, token } = useAuth();
@@ -132,11 +133,12 @@ export default function HodDashboard() {
     ];
 
     return (
+        <AnimatedPage>
         <div className="p-8 md:p-10 bg-gray-50/50 min-h-screen font-sans text-gray-800">
             {/* Header */}
             <div className="flex justify-between items-center mb-10 pb-4 border-b border-gray-200/60">
                 <div>
-                    <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight drop-shadow-sm">HOD Automation</h1>
+                    <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 tracking-tight drop-shadow-sm page-title-underline">HOD Automation</h1>
                     <p className="text-gray-500 mt-2 font-medium text-sm tracking-wide">Department Monitoring & Academic Management</p>
                 </div>
             </div>
@@ -158,12 +160,12 @@ export default function HodDashboard() {
             </div>
 
             {/* 1. Department Overview Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-12">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-12 reveal-section">
                 {overviewCards.map((card, i) => (
                     <Link href={card.link} key={i}>
-                        <div className="bg-white p-6 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 flex flex-col transition-all duration-300 hover:shadow-[0_10px_30px_rgba(0,0,0,0.08)] hover:-translate-y-2 cursor-pointer h-full group relative overflow-hidden">
+                        <div className="stat-card bg-white p-6 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.03)] border border-gray-100 flex flex-col card-hover card-glow cursor-pointer h-full group relative overflow-hidden reveal">
                             <div className="flex justify-between items-start mb-6">
-                                <div className={`p-4 rounded-2xl ${card.bg} ${card.color} transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3`}>
+                                <div className={`stat-icon p-4 rounded-2xl ${card.bg} ${card.color} transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3 icon-hover-bounce`}>
                                     <card.icon size={26} strokeWidth={2.5} />
                                 </div>
                                 {card.trendUp !== null && (
@@ -173,7 +175,7 @@ export default function HodDashboard() {
                                 )}
                             </div>
                             <div className="mt-auto">
-                                <p className="text-3xl font-black text-gray-800 tracking-tight">{card.value}</p>
+                                <p className="stat-value text-3xl font-black text-gray-800 tracking-tight">{card.value}</p>
                                 <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1.5">{card.label}</p>
                             </div>
                         </div>
@@ -458,7 +460,7 @@ export default function HodDashboard() {
                             <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg"><BookOpen size={18} /></div> Syllabus Progress
                         </h2>
                     </div>
-                    <table className="w-full text-left">
+                    <table className="table-modern w-full text-left">
                         <thead className="bg-gray-50/50 border-b border-gray-100">
                             <tr>
                                 <th className="p-4 px-6 text-xs font-extrabold text-gray-500 uppercase tracking-wider">Subject</th>
@@ -468,7 +470,7 @@ export default function HodDashboard() {
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {academicProgress.map((prog, i) => (
-                                <tr key={i} className="hover:bg-blue-50/40 transition-colors cursor-pointer group" onClick={() => window.location.href = `/dashboard/hod/academics/subject/${prog.id}`}>
+                                <tr key={i} className="cursor-pointer group" onClick={() => window.location.href = `/dashboard/hod/academics/subject/${prog.id}`}>
                                     <td className="p-4 px-6">
                                         <div className="font-bold text-gray-800 text-sm mb-1 group-hover:text-blue-600 transition-colors">{prog.subject}</div>
                                         <div className="text-xs font-medium text-gray-500">{prog.faculty}</div>
@@ -476,7 +478,7 @@ export default function HodDashboard() {
                                     <td className="p-4 px-6">
                                         <div className="flex items-center gap-3">
                                             <div className="flex-1 bg-gray-100 h-2 rounded-full overflow-hidden">
-                                                <div className={`h-full rounded-full ${prog.progress < 70 ? 'bg-orange-500' : 'bg-blue-600'}`} style={{ width: `${prog.progress}%` }}></div>
+                                                <div className={`h-full rounded-full progress-animated ${prog.progress < 70 ? 'bg-orange-500' : 'bg-blue-600'}`} style={{ width: `${prog.progress}%` }}></div>
                                             </div>
                                             <span className="text-xs font-bold text-gray-700">{prog.progress}%</span>
                                         </div>
@@ -501,7 +503,7 @@ export default function HodDashboard() {
                             <div className="p-2 bg-orange-50 text-orange-600 rounded-lg"><AlertTriangle size={18} /></div> Pending Approvals
                         </h2>
                     </div>
-                    <table className="w-full text-left">
+                    <table className="table-modern w-full text-left">
                         <thead className="bg-gray-50/50 border-b border-gray-100">
                             <tr>
                                 <th className="p-5 px-6 text-xs font-extrabold text-gray-500 uppercase tracking-wider">Request</th>
@@ -511,7 +513,7 @@ export default function HodDashboard() {
                         </thead>
                         <tbody className="divide-y divide-gray-100">
                             {pendingApprovals.map((req, i) => (
-                                <tr key={i} className="hover:bg-blue-50/40 transition-colors cursor-pointer group" onClick={() => window.location.href = req.link}>
+                                <tr key={i} className="cursor-pointer group" onClick={() => window.location.href = req.link}>
                                     <td className="p-5 px-6">
                                         <div className="font-bold text-gray-800 text-sm mb-1 group-hover:text-blue-600 transition-colors">{req.type}</div>
                                         <div className="text-xs font-medium text-gray-500">{req.date}</div>
@@ -520,15 +522,15 @@ export default function HodDashboard() {
                                     <td className="p-5 px-6 text-right">
                                         <div className="flex justify-end gap-3">
                                             <button
-                                                className="text-xs font-bold text-blue-700 bg-blue-50/80 border border-blue-200 hover:bg-blue-100 px-4 py-1.5 rounded-lg transition-all cursor-pointer hover:shadow-sm"
+                                                className="btn-animate text-xs font-bold text-blue-700 bg-blue-50/80 border border-blue-200 hover:bg-blue-100 px-4 py-1.5 rounded-lg cursor-pointer"
                                                 onClick={(e) => { e.stopPropagation(); window.location.href = req.link; }}
                                             >View</button>
                                             <button
-                                                className="text-xs font-bold text-white bg-green-500 hover:bg-green-600 px-4 py-1.5 rounded-lg transition-all cursor-pointer shadow-md shadow-green-500/20"
+                                                className="btn-animate btn-approve text-xs font-bold text-white bg-green-500 hover:bg-green-600 px-4 py-1.5 rounded-lg cursor-pointer shadow-md shadow-green-500/20"
                                                 onClick={(e) => { e.stopPropagation(); alert(`Approved request ${req.id}`); }}
                                             >Approve</button>
                                             <button
-                                                className="text-xs font-bold text-gray-600 bg-gray-100 hover:bg-red-50 hover:text-red-600 border border-gray-200 hover:border-red-200 px-4 py-1.5 rounded-lg transition-all cursor-pointer hover:shadow-sm"
+                                                className="btn-animate btn-reject text-xs font-bold text-gray-600 bg-gray-100 hover:bg-red-50 hover:text-red-600 border border-gray-200 hover:border-red-200 px-4 py-1.5 rounded-lg cursor-pointer"
                                                 onClick={(e) => { e.stopPropagation(); alert(`Rejected request ${req.id}`); }}
                                             >Reject</button>
                                         </div>
@@ -591,5 +593,6 @@ export default function HodDashboard() {
 
             </div>
         </div>
+        </AnimatedPage>
     );
 }

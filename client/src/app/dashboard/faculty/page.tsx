@@ -4,22 +4,30 @@ import { useAuth } from '@/context/AuthContext';
 import {
     CheckSquare, Users, BookOpen, Clock, AlertTriangle,
     CalendarCheck, FileText, CheckCircle2, AlertCircle,
-    Bell, BarChart2, UserCheck, UserMinus, PlusCircle, ArrowUpRight, ArrowDownRight, UploadCloud, Edit
+    Bell, BarChart2, UserCheck, UserMinus, PlusCircle, ArrowUpRight, ArrowDownRight, UploadCloud, Edit, BookCopy
 } from 'lucide-react';
+import AnimatedPage from '@/components/AnimatedPage';
 
 export default function FacultyDashboard() {
-    const { token } = useAuth();
+    const { token, user, setSelectedRole } = useAuth();
+
+    useEffect(() => {
+        if (user?.role === 'class_incharge') {
+            setSelectedRole('faculty');
+        }
+    }, [user, setSelectedRole]);
 
     // --- Mock Data for ERP UI ---
 
     // 1. Top Summary Cards
     const summaryCards = [
-        { label: 'Pending Verifications', value: 8, icon: CheckSquare, color: 'text-orange-600', bg: 'bg-orange-50' },
-        { label: 'My Active Classes', value: 4, icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-        { label: 'Subjects Handling', value: 4, icon: BookOpen, color: 'text-purple-600', bg: 'bg-purple-50' },
-        { label: 'Total Students', value: 240, icon: UserCheck, color: 'text-teal-600', bg: 'bg-teal-50' },
-        { label: "Today's Classes", value: 3, icon: Clock, color: 'text-indigo-600', bg: 'bg-indigo-50' },
-        { label: 'Pending Complaints', value: 1, icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50' },
+        { label: 'Subjects Handling', value: 4, icon: BookOpen, color: 'text-blue-600', bg: 'bg-blue-50' },
+        { label: 'Lesson Plan Completion', value: '75%', icon: CheckSquare, color: 'text-green-600', bg: 'bg-green-50' },
+        { label: 'Notes Uploaded', value: 12, icon: FileText, color: 'text-purple-600', bg: 'bg-purple-50' },
+        { label: 'Logbook Entries', value: 45, icon: CalendarCheck, color: 'text-teal-600', bg: 'bg-teal-50' },
+        { label: 'Internal Test Status', value: 'Pending', icon: AlertCircle, color: 'text-orange-600', bg: 'bg-orange-50' },
+        { label: 'Research Papers', value: 3, icon: BookCopy, color: 'text-indigo-600', bg: 'bg-indigo-50' },
+        { label: 'Pending Submissions', value: 2, icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50' },
     ];
 
     // 2. Today's Schedule 
@@ -60,23 +68,24 @@ export default function FacultyDashboard() {
     ];
 
     return (
+        <AnimatedPage>
         <div className="p-8 bg-gray-50 min-h-screen font-sans text-gray-800">
             {/* Header */}
             <div className="flex justify-between items-center mb-10">
                 <div>
-                    <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Faculty Dashboard</h1>
+                    <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight page-title-underline">Faculty Dashboard</h1>
                     <p className="text-gray-500 mt-1 font-medium text-sm">Academic Overview & Daily Operations</p>
                 </div>
             </div>
 
             {/* 1. Summary Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+            <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4 mb-8 reveal-section">
                 {summaryCards.map((card, i) => (
-                    <div key={i} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center transition hover:shadow-md">
-                        <div className={`p-3 rounded-xl ${card.bg} ${card.color} mb-3`}>
+                    <div key={i} className="stat-card bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center text-center card-hover card-glow reveal">
+                        <div className={`stat-icon p-3 rounded-xl ${card.bg} ${card.color} mb-3 icon-hover-bounce`}>
                             <card.icon size={20} strokeWidth={2.5} />
                         </div>
-                        <p className="text-2xl font-black text-gray-900">{card.value}</p>
+                        <p className="stat-value text-2xl font-black text-gray-900">{card.value}</p>
                         <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1 leading-tight">{card.label}</p>
                     </div>
                 ))}
@@ -90,7 +99,7 @@ export default function FacultyDashboard() {
                         <h2 className="text-lg font-extrabold text-gray-900">Today's Schedule</h2>
                     </div>
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left">
+                        <table className="table-modern w-full text-left">
                             <thead className="bg-gray-50/50 border-b border-gray-100">
                                 <tr>
                                     <th className="p-4 px-6 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Time</th>
@@ -102,7 +111,7 @@ export default function FacultyDashboard() {
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {todaySchedule.map((cls, i) => (
-                                    <tr key={i} className="hover:bg-gray-50/50 transition">
+                                    <tr key={i} className="">
                                         <td className="p-4 px-6 text-sm font-bold text-gray-700 whitespace-nowrap">{cls.time}</td>
                                         <td className="p-4 px-6 font-bold text-gray-900 text-sm">{cls.subject}</td>
                                         <td className="p-4 px-6 text-sm font-semibold text-gray-600">{cls.class}</td>
@@ -165,7 +174,7 @@ export default function FacultyDashboard() {
                         <h2 className="text-lg font-extrabold text-gray-900">My Subjects</h2>
                     </div>
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left">
+                        <table className="table-modern w-full text-left">
                             <thead className="bg-gray-50/50 border-b border-gray-100">
                                 <tr>
                                     <th className="p-4 px-6 text-[10px] font-extrabold text-gray-400 uppercase tracking-widest">Subject</th>
@@ -176,14 +185,14 @@ export default function FacultyDashboard() {
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {mySubjects.map((sub, i) => (
-                                    <tr key={i} className="hover:bg-gray-50/50 transition">
+                                    <tr key={i} className="">
                                         <td className="p-4 px-6 font-bold text-gray-900 text-sm">{sub.subject}</td>
                                         <td className="p-4 px-6 text-center text-sm font-semibold text-gray-600">{sub.year} - {sub.section}</td>
                                         <td className="p-4 px-6 text-center text-sm font-bold text-gray-700">{sub.students}</td>
                                         <td className="p-4 px-6">
                                             <div className="flex items-center gap-3 justify-center">
                                                 <div className="flex-1 bg-gray-100 h-2 rounded-full overflow-hidden">
-                                                    <div className={`h-full rounded-full ${sub.progress >= 70 ? 'bg-green-500' : 'bg-orange-500'}`} style={{ width: `${sub.progress}%` }}></div>
+                                                    <div className={`h-full rounded-full progress-animated ${sub.progress >= 70 ? 'bg-green-500' : 'bg-orange-500'}`} style={{ width: `${sub.progress}%` }}></div>
                                                 </div>
                                                 <span className="text-xs font-bold text-gray-800 w-8">{sub.progress}%</span>
                                             </div>
@@ -234,20 +243,20 @@ export default function FacultyDashboard() {
                         <h2 className="text-lg font-extrabold text-gray-900">Quick Actions</h2>
                     </div>
                     <div className="grid grid-cols-2 gap-4 flex-1">
-                        <button className="flex flex-col items-center justify-center p-4 bg-gray-50 border border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 text-gray-700 rounded-xl transition shadow-sm group">
-                            <CalendarCheck size={28} className="mb-2 text-gray-400 group-hover:text-blue-600 transition" />
+                        <button className="btn-animate flex flex-col items-center justify-center p-4 bg-gray-50 border border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 text-gray-700 rounded-xl shadow-sm group">
+                            <CalendarCheck size={28} className="mb-2 text-gray-400 group-hover:text-blue-600 transition icon-hover-bounce" />
                             <span className="text-xs font-bold">Mark Attendance</span>
                         </button>
-                        <button className="flex flex-col items-center justify-center p-4 bg-gray-50 border border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 text-gray-700 rounded-xl transition shadow-sm group">
-                            <UploadCloud size={28} className="mb-2 text-gray-400 group-hover:text-blue-600 transition" />
+                        <button className="btn-animate flex flex-col items-center justify-center p-4 bg-gray-50 border border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 text-gray-700 rounded-xl shadow-sm group">
+                            <UploadCloud size={28} className="mb-2 text-gray-400 group-hover:text-blue-600 transition icon-hover-bounce" />
                             <span className="text-xs font-bold">Upload Internal Marks</span>
                         </button>
-                        <button className="flex flex-col items-center justify-center p-4 bg-gray-50 border border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 text-gray-700 rounded-xl transition shadow-sm group">
-                            <Edit size={28} className="mb-2 text-gray-400 group-hover:text-blue-600 transition" />
+                        <button className="btn-animate flex flex-col items-center justify-center p-4 bg-gray-50 border border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 text-gray-700 rounded-xl shadow-sm group">
+                            <Edit size={28} className="mb-2 text-gray-400 group-hover:text-blue-600 transition icon-hover-bounce" />
                             <span className="text-xs font-bold">Update Syllabus</span>
                         </button>
-                        <button className="flex flex-col items-center justify-center p-4 bg-gray-50 border border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 text-gray-700 rounded-xl transition shadow-sm group">
-                            <FileText size={28} className="mb-2 text-gray-400 group-hover:text-blue-600 transition" />
+                        <button className="btn-animate flex flex-col items-center justify-center p-4 bg-gray-50 border border-gray-200 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 text-gray-700 rounded-xl shadow-sm group">
+                            <FileText size={28} className="mb-2 text-gray-400 group-hover:text-blue-600 transition icon-hover-bounce" />
                             <span className="text-xs font-bold">Upload Notes</span>
                         </button>
                     </div>
@@ -273,5 +282,6 @@ export default function FacultyDashboard() {
                 </div>
             </div>
         </div>
+        </AnimatedPage>
     );
 }

@@ -18,6 +18,19 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        
+        // --- Mock Login for Development/Testing ---
+        if (email === 'incharge@college.edu' && password === 'incharge123') {
+            login('mock-token-ci', {
+                id: 'ci-001',
+                name: 'Prof. Rajesh (CI)',
+                role: 'class_incharge',
+                department: 'CSE'
+            });
+            return;
+        }
+        // ------------------------------------------
+
         try {
             const res = await fetch('http://localhost:5000/api/auth/login', {
                 method: 'POST',
@@ -89,6 +102,7 @@ export default function LoginPage() {
                         <p className="font-semibold mb-1">Demo Credentials:</p>
                         <p>HOD: hod@college.edu / admin123</p>
                         <p>Faculty: faculty@college.edu / faculty123</p>
+                        <p>Incharge: incharge@college.edu / incharge123</p>
                         <p>Student: student@college.edu / student123</p>
                     </div>
                 </form>

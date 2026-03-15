@@ -5,14 +5,38 @@ import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard, BookOpen, FileText, Bell, Users, UsersRound,
     MessageSquare, BarChart, CalendarCheck, FileSpreadsheet,
-    CheckSquare, User, LogOut, BookCopy, TrendingUp, LineChart
+    CheckSquare, User, LogOut, BookCopy, TrendingUp, LineChart, HeartHandshake
 } from 'lucide-react';
 
 export default function Sidebar() {
-    const { user, logout } = useAuth();
+    const { user, logout, selectedRole } = useAuth();
     const pathname = usePathname();
 
     if (!user) return null;
+
+    const facultyLinks = [
+        { name: 'Overview', href: '/dashboard/faculty', icon: LayoutDashboard },
+        { name: 'Profile', href: '/dashboard/faculty/profile', icon: User },
+        { name: 'Academics', href: '/dashboard/faculty/academics', icon: BookOpen },
+        { name: 'Daily Test', href: '/dashboard/faculty/daily-test', icon: CalendarCheck },
+        { name: 'Internal Assessment', href: '/dashboard/faculty/internal-assessment', icon: FileSpreadsheet },
+        { name: 'Research Papers', href: '/dashboard/faculty/research-papers', icon: BookCopy },
+        { name: 'Mentor', href: '/dashboard/faculty/mentor', icon: HeartHandshake },
+        { name: 'Circulars', href: '/dashboard/faculty/circulars', icon: Bell },
+        { name: 'Complaint', href: '/dashboard/faculty/complaint', icon: MessageSquare },
+        { name: 'Reports', href: '/dashboard/faculty/reports', icon: BarChart },
+    ];
+
+    const inchargeLinks = [
+        { name: 'Dashboard', href: '/dashboard/incharge', icon: LayoutDashboard },
+        { name: 'Class Attendance', href: '/dashboard/incharge/attendance', icon: CalendarCheck },
+        { name: 'Daily Test Marks', href: '/dashboard/incharge/daily-test-marks', icon: CheckSquare },
+        { name: 'Internal Marks-1', href: '/dashboard/incharge/internal-marks-1', icon: FileSpreadsheet },
+        { name: 'Internal Marks-2', href: '/dashboard/incharge/internal-marks-2', icon: FileSpreadsheet },
+        { name: 'Co-curricular', href: '/dashboard/incharge/co-curricular', icon: UsersRound },
+        { name: 'Feedback', href: '/dashboard/incharge/feedback', icon: MessageSquare },
+        { name: 'Reports', href: '/dashboard/incharge/reports', icon: BarChart },
+    ];
 
     const links = {
         hod: [
@@ -29,15 +53,8 @@ export default function Sidebar() {
             { name: 'R&D Performance', href: '/dashboard/hod/performance', icon: TrendingUp },
             { name: 'Staff Performance', href: '/dashboard/hod/staff-performance', icon: LineChart },
         ],
-        faculty: [
-            { name: 'Dashboard', href: '/dashboard/faculty', icon: LayoutDashboard },
-            { name: 'Academics', href: '/dashboard/academics', icon: BookOpen },
-            { name: 'Attendance', href: '/dashboard/faculty/attendance', icon: CalendarCheck },
-            { name: 'Resources', href: '/dashboard/faculty/resources', icon: FileSpreadsheet },
-            { name: 'Verify Requests', href: '/dashboard/faculty/requests', icon: CheckSquare },
-            { name: 'Complaints', href: '/dashboard/complaints', icon: MessageSquare },
-            { name: 'My Profile', href: '/dashboard/faculty/profile', icon: User },
-        ],
+        faculty: facultyLinks,
+        class_incharge: selectedRole === 'incharge' ? inchargeLinks : facultyLinks,
         student: [
             { name: 'Dashboard', href: '/dashboard/student', icon: LayoutDashboard },
             { name: 'Academics', href: '/dashboard/academics', icon: BookOpen },
@@ -53,7 +70,7 @@ export default function Sidebar() {
 
     // Fallback names for mock users
     const displayName = user.name || (user.role === 'hod' ? 'Dr. Subramani V' : user.role === 'faculty' ? 'Prof. Anitha' : 'Student Name');
-    const displayRole = user.role === 'hod' ? 'HOD' : user.role === 'faculty' ? 'Faculty' : 'Student';
+    const displayRole = user.role === 'hod' ? 'HOD' : user.role === 'class_incharge' ? (selectedRole === 'incharge' ? 'Class Incharge' : 'Faculty') : user.role === 'faculty' ? 'Faculty' : 'Student';
     const displayDept = user.department || 'CSE';
 
     return (
@@ -74,7 +91,10 @@ export default function Sidebar() {
             {/* 2. Sidebar Navigation (Scrollable) */}
             <nav className="flex-1 overflow-y-auto p-4 space-y-1.5 custom-scrollbar">
                 {roleLinks.map((link) => {
-                    const isActive = pathname === link.href || (pathname.startsWith(`${link.href}/`) && link.name !== 'Dashboard');
+                    const isActive = pathname === link.href || 
+                                   (pathname.startsWith(`${link.href}/`) && 
+                                    link.name !== 'Dashboard' && 
+                                    link.name !== 'Overview');
                     return (
                         <Link
                             key={link.href}
