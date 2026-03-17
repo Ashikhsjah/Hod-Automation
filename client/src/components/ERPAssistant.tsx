@@ -11,6 +11,61 @@ interface Message {
     timestamp: Date;
 }
 
+// ─── Suggestion chips per role ──────────────────────────────────────────────
+const SUGGESTIONS: Record<string, { label: string; cmd: string }[]> = {
+    hod: [
+        { label: 'Dashboard',          cmd: 'dashboard' },
+        { label: 'Academics',          cmd: 'academics' },
+        { label: 'Faculty List',       cmd: 'faculty list' },
+        { label: 'Students',           cmd: 'students' },
+        { label: 'Faculty Requests',   cmd: 'faculty requests' },
+        { label: 'Student Requests',   cmd: 'student requests' },
+        { label: 'Student Complaints', cmd: 'student complaints' },
+        { label: 'Staff Complaints',   cmd: 'staff complaints' },
+        { label: 'Publications',       cmd: 'publications' },
+        { label: 'Reports',            cmd: 'reports' },
+        { label: 'Circulars',          cmd: 'circulars' },
+        { label: 'R&D Performance',    cmd: 'r&d performance' },
+        { label: 'Staff Performance',  cmd: 'staff performance' },
+    ],
+    faculty: [
+        { label: 'Dashboard',           cmd: 'dashboard' },
+        { label: 'Academics',           cmd: 'academics' },
+        { label: 'Lesson Plan',         cmd: 'lesson plan' },
+        { label: 'Logbook',             cmd: 'logbook' },
+        { label: 'Notes Upload',        cmd: 'notes upload' },
+        { label: 'Attendance',          cmd: 'attendance' },
+        { label: 'Daily Test',          cmd: 'daily test' },
+        { label: 'Internal Assessment', cmd: 'internal assessment' },
+        { label: 'Mentor',              cmd: 'mentor' },
+        { label: 'Research Papers',     cmd: 'research papers' },
+        { label: 'Resources',           cmd: 'resources' },
+        { label: 'Requests',            cmd: 'requests' },
+        { label: 'Complaints',          cmd: 'complaints' },
+        { label: 'Circulars',           cmd: 'circulars' },
+        { label: 'Profile',             cmd: 'profile' },
+        { label: 'Reports',             cmd: 'reports' },
+    ],
+    incharge: [
+        { label: 'Dashboard',          cmd: 'dashboard' },
+        { label: 'Attendance',         cmd: 'attendance' },
+        { label: 'Academic Records',   cmd: 'academic records' },
+        { label: 'Daily Test Marks',   cmd: 'daily test marks' },
+        { label: 'Internal Marks 1',   cmd: 'internal marks 1' },
+        { label: 'Internal Marks 2',   cmd: 'internal marks 2' },
+        { label: 'Co-Curricular',      cmd: 'co-curricular' },
+        { label: 'Feedback',           cmd: 'feedback' },
+        { label: 'Reports',            cmd: 'reports' },
+    ],
+    student: [
+        { label: 'Dashboard',   cmd: 'dashboard' },
+        { label: 'Attendance',  cmd: 'attendance' },
+        { label: 'Results',     cmd: 'results' },
+        { label: 'Circulars',   cmd: 'circulars' },
+        { label: 'Apply',       cmd: 'apply' },
+    ],
+};
+
 export default function ERPAssistant() {
     const { user } = useAuth();
     const router = useRouter();
@@ -25,7 +80,14 @@ export default function ERPAssistant() {
     // Only render on client to prevent hydration mismatch
     useEffect(() => {
         setMounted(true);
-        setMessages([{ id: '1', text: `Hello ${user?.name || 'there'}! I'm your ERP Assistant. Say or type a command like "Go to Academics".`, sender: 'bot', timestamp: new Date() }]);
+        const role = user?.role?.toLowerCase() || 'faculty';
+        const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
+        setMessages([{
+            id: '1',
+            text: `Hello ${user?.name || 'there'}! I'm your ERP Assistant (${roleLabel} Portal). Say or type a command like "Go to Academics".`,
+            sender: 'bot',
+            timestamp: new Date()
+        }]);
 
         // Initialize Speech Recognition
         const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
@@ -62,10 +124,16 @@ export default function ERPAssistant() {
     };
 
     const processCommand = (rawText: string) => {
-        const role = user?.role || 'faculty';
+        const role = user?.role?.toLowerCase() || 'faculty';
+
+        // Determine portal flags
+        const isHOD      = role === 'hod';
+        const isFaculty  = role === 'faculty';
+        const isIncharge = role === 'incharge';
+        const isStudent  = role === 'student';
 
         // Strip common navigation prefixes before keyword matching
-        const prefixes = ['navigate to ', 'go to ', 'open ', 'show ', 'take me to ', 'load '];
+        const prefixes = ['navigate to ', 'go to ', 'open ', 'show ', 'take me to ', 'load ', 'switch to ', 'bring up '];
         let text = rawText.toLowerCase().replace(/ page$/, '').trim();
         for (const prefix of prefixes) {
             if (text.startsWith(prefix)) {
@@ -74,81 +142,290 @@ export default function ERPAssistant() {
             }
         }
 
-        // Full command map — HOD + Faculty routes
-        // IMPORTANT: More specific entries must come BEFORE broader ones
-        const commands = [
-            // ── HOD-specific ─────────────────────────────────────────────
+        // ─────────────────────────────────────────────────────────────────────
+        // Full command map.
+        // portal: 'hod' | 'faculty' | 'incharge' | 'student' | 'shared'
+        //   'shared' → resolves dynamically via `path` (already role-resolved).
+        // ⚠️ ORDER MATTERS: more specific entries MUST come before broader ones.
+        // ─────────────────────────────────────────────────────────────────────
+        const commands: { keywords: string[]; path: string; label: string; portal: 'hod' | 'faculty' | 'incharge' | 'student' | 'shared' }[] = [
+
+            // ══ ACADEMICS — Sub-components (Faculty portal) ═══════════════════
             {
-                keywords: ['requests', 'request', 'approval', 'approvals', 'pending approval'],
-                path: role === 'hod' ? '/dashboard/hod/requests' : '/dashboard/faculty/requests',
-                label: 'Requests Page'
+                keywords: ['lesson plan', 'lesson plans', 'lesson', 'teaching plan'],
+                path: '/dashboard/faculty/academics/lesson-plan',
+                label: 'Lesson Plan',
+                portal: 'faculty'
             },
             {
-                keywords: ['faculty', 'faculty list', 'faculty page', 'teachers'],
-                path: '/dashboard/hod/faculty',
-                label: 'Faculty Page',
-                hodOnly: false
-            },
-            // ⚠️ student feedback MUST come before students
-            {
-                keywords: ['student feedback', 'student complaints', 'feedback', 'student review'],
-                path: '/dashboard/hod/student-complaints',
-                label: 'Student Feedback Page'
+                keywords: ['notes upload', 'upload notes', 'notes', 'study material', 'materials'],
+                path: '/dashboard/faculty/academics/notes',
+                label: 'Notes Upload',
+                portal: 'faculty'
             },
             {
-                keywords: ['students', 'student', 'student list'],
-                path: '/dashboard/hod/students',
-                label: 'Students Page'
+                keywords: ['logbook', 'log book', 'log entries', 'class log'],
+                path: '/dashboard/faculty/academics/logbook',
+                label: 'Logbook',
+                portal: 'faculty'
             },
-            {
-                keywords: ['publications', 'publication', 'papers published', 'research papers'],
-                path: '/dashboard/hod/publications',
-                label: 'Publications Page'
-            },
-            {
-                keywords: ['r and d', 'r&d', 'research performance', 'r&d performance', 'research and development'],
-                path: '/dashboard/hod/performance',
-                label: 'R&D Performance Page'
-            },
-            {
-                keywords: ['staff performance', 'staff', 'performance'],
-                path: '/dashboard/hod/staff-performance',
-                label: 'Staff Performance Page'
-            },
-            // ── Shared ────────────────────────────────────────────────────
+            // Academics — parent (shared: HOD → /dashboard/academics, others → /dashboard/<role>/academics)
             {
                 keywords: ['academics', 'academic'],
-                path: role === 'hod' ? '/dashboard/academics' : '/dashboard/faculty/academics',
-                label: 'Academics Page'
+                path: isHOD ? '/dashboard/academics'
+                    : isFaculty ? '/dashboard/faculty/academics'
+                    : isIncharge ? '/dashboard/incharge'  // incharge has no separate academics
+                    : '/dashboard/student',
+                label: 'Academics',
+                portal: 'shared'
+            },
+
+            // ══ REQUESTS — Sub-components (HOD portal) ════════════════════════
+            {
+                keywords: ['student request', 'student requests', 'requests from student', 'student approvals'],
+                path: '/dashboard/hod/student-requests',
+                label: 'Student Requests',
+                portal: 'hod'
             },
             {
-                keywords: ['complaints', 'complaint', 'grievance', 'grievances'],
-                path: role === 'hod' ? '/dashboard/hod/complaints' : '/dashboard/faculty/complaint',
-                label: 'Complaints Page'
+                keywords: ['faculty request', 'faculty requests', 'requests from faculty', 'faculty approvals', 'staff request', 'staff requests'],
+                path: '/dashboard/hod/faculty-requests',
+                label: 'Faculty Requests',
+                portal: 'hod'
+            },
+            // Requests — shared
+            {
+                keywords: ['requests', 'request', 'approval', 'approvals', 'pending approval', 'pending approvals'],
+                path: isHOD ? '/dashboard/hod/requests' : '/dashboard/faculty/requests',
+                label: 'Requests',
+                portal: isHOD || isFaculty ? 'shared' : isFaculty ? 'faculty' : 'hod'
+            },
+
+            // ══ COMPLAINTS — Sub-components (HOD portal) ══════════════════════
+            {
+                keywords: ['student complaint', 'student complaints', 'student feedback', 'student review', 'student grievance'],
+                path: '/dashboard/hod/student-complaints',
+                label: 'Student Complaints',
+                portal: 'hod'
+            },
+            {
+                keywords: ['staff complaint', 'staff complaints', 'staff grievance', 'staff issues'],
+                path: '/dashboard/hod/complaints/staff',
+                label: 'Staff Complaints',
+                portal: 'hod'
+            },
+            // Complaints — shared
+            {
+                keywords: ['complaints', 'complaint', 'grievance', 'grievances', 'feedback'],
+                path: isHOD ? '/dashboard/hod/complaints'
+                    : isFaculty ? '/dashboard/faculty/complaint'
+                    : '/dashboard/student',
+                label: 'Complaints',
+                portal: 'shared'
+            },
+
+            // ══ REPORTS — shared ══════════════════════════════════════════════
+            {
+                keywords: ['attendance report', 'attendance reports', 'report attendance', 'absenteeism report'],
+                path: isHOD ? '/dashboard/hod/reports'
+                    : isFaculty ? '/dashboard/faculty/reports'
+                    : isIncharge ? '/dashboard/incharge/reports'
+                    : '/dashboard/student/attendance',
+                label: 'Attendance Report',
+                portal: 'shared'
+            },
+            {
+                keywords: ['academic report', 'academic reports', 'marks report', 'performance report', 'result report'],
+                path: isHOD ? '/dashboard/hod/reports'
+                    : isFaculty ? '/dashboard/faculty/reports'
+                    : isIncharge ? '/dashboard/incharge/reports'
+                    : '/dashboard/student/results',
+                label: 'Academic Report',
+                portal: 'shared'
             },
             {
                 keywords: ['reports', 'report'],
-                path: role === 'hod' ? '/dashboard/hod/reports' : '/dashboard/faculty/reports',
-                label: 'Reports Page'
+                path: isHOD ? '/dashboard/hod/reports'
+                    : isFaculty ? '/dashboard/faculty/reports'
+                    : isIncharge ? '/dashboard/incharge/reports'
+                    : '/dashboard/student',
+                label: 'Reports',
+                portal: 'shared'
+            },
+
+            // ══ HOD-only pages ════════════════════════════════════════════════
+            {
+                keywords: ['faculty list', 'faculty page', 'teachers', 'teaching staff', 'all faculty'],
+                path: '/dashboard/hod/faculty',
+                label: 'Faculty List',
+                portal: 'hod'
             },
             {
-                keywords: ['circulars', 'circular', 'notices', 'notice', 'announcements'],
-                path: role === 'hod' ? '/dashboard/hod/circulars' : '/dashboard/faculty/circulars',
-                label: 'Circulars Page'
+                keywords: ['students', 'student list', 'all students'],
+                path: '/dashboard/hod/students',
+                label: 'Students',
+                portal: 'hod'
             },
             {
-                keywords: ['profile', 'my profile', 'account', 'my account'],
+                keywords: ['publications', 'publication', 'papers published'],
+                path: '/dashboard/hod/publications',
+                label: 'Publications',
+                portal: 'hod'
+            },
+            {
+                keywords: ['r and d performance', 'r&d performance', 'r&d', 'research and development', 'research performance'],
+                path: '/dashboard/hod/performance',
+                label: 'R&D Performance',
+                portal: 'hod'
+            },
+            {
+                keywords: ['staff performance', 'staff report'],
+                path: '/dashboard/hod/staff-performance',
+                label: 'Staff Performance',
+                portal: 'hod'
+            },
+
+            // ══ Faculty-only pages ════════════════════════════════════════════
+            {
+                keywords: ['daily test', 'test marks', 'quiz marks', 'quiz'],
+                path: '/dashboard/faculty/daily-test',
+                label: 'Daily Test',
+                portal: 'faculty'
+            },
+            {
+                keywords: ['internal assessment', 'internal marks', 'cia', 'cia marks', 'internal'],
+                path: '/dashboard/faculty/internal-assessment',
+                label: 'Internal Assessment',
+                portal: 'faculty'
+            },
+            {
+                keywords: ['research papers', 'my publications', 'my papers', 'research'],
+                path: '/dashboard/faculty/research-papers',
+                label: 'Research Papers',
+                portal: 'faculty'
+            },
+            {
+                keywords: ['mentor', 'mentoring', 'mentees', 'mentee students'],
+                path: '/dashboard/faculty/mentor',
+                label: 'Mentor Dashboard',
+                portal: 'faculty'
+            },
+            {
+                keywords: ['attendance', 'mark attendance', 'class attendance'],
+                path: isFaculty ? '/dashboard/faculty/attendance'
+                    : isIncharge ? '/dashboard/incharge/attendance'
+                    : isStudent ? '/dashboard/student/attendance'
+                    : '/dashboard/hod',
+                label: 'Attendance',
+                portal: 'shared'
+            },
+            {
+                keywords: ['resources', 'resource', 'teaching resources', 'materials library'],
+                path: '/dashboard/faculty/resources',
+                label: 'Resources',
+                portal: 'faculty'
+            },
+
+            // ══ Incharge-only pages ═══════════════════════════════════════════
+            {
+                keywords: ['academic records', 'academic record', 'student academic'],
+                path: '/dashboard/incharge/academic-records',
+                label: 'Academic Records',
+                portal: 'incharge'
+            },
+            {
+                keywords: ['daily test marks', 'test mark', 'test score'],
+                path: '/dashboard/incharge/daily-test-marks',
+                label: 'Daily Test Marks',
+                portal: 'incharge'
+            },
+            {
+                keywords: ['internal marks 1', 'internal mark 1', 'cia 1', 'first internal'],
+                path: '/dashboard/incharge/internal-marks-1',
+                label: 'Internal Marks 1',
+                portal: 'incharge'
+            },
+            {
+                keywords: ['internal marks 2', 'internal mark 2', 'cia 2', 'second internal'],
+                path: '/dashboard/incharge/internal-marks-2',
+                label: 'Internal Marks 2',
+                portal: 'incharge'
+            },
+            {
+                keywords: ['co-curricular', 'co curricular', 'extracurricular', 'extra curricular', 'activities'],
+                path: '/dashboard/incharge/co-curricular',
+                label: 'Co-Curricular',
+                portal: 'incharge'
+            },
+
+            // ══ Student-only pages ════════════════════════════════════════════
+            {
+                keywords: ['results', 'result', 'marks', 'grades', 'grade'],
+                path: '/dashboard/student/results',
+                label: 'Results',
+                portal: 'student'
+            },
+            {
+                keywords: ['apply', 'application', 'apply leave', 'leave application'],
+                path: '/dashboard/student/apply',
+                label: 'Apply',
+                portal: 'student'
+            },
+
+            // ══ Shared pages ══════════════════════════════════════════════════
+            {
+                keywords: ['circulars', 'circular', 'notices', 'notice', 'announcements', 'bulletin'],
+                path: isHOD ? '/dashboard/hod/circulars'
+                    : isFaculty ? '/dashboard/faculty/circulars'
+                    : isStudent ? '/dashboard/student/circulars'
+                    : '/dashboard/incharge',
+                label: 'Circulars & Notices',
+                portal: 'shared'
+            },
+            {
+                keywords: ['profile', 'my profile', 'account', 'my account', 'my info'],
                 path: '/dashboard/faculty/profile',
-                label: 'Profile Page'
+                label: 'Profile',
+                portal: 'faculty'
             },
+            {
+                keywords: ['faculty dashboard'],
+                path: '/dashboard/faculty',
+                label: 'Faculty Dashboard',
+                portal: 'faculty'
+            },
+            {
+                keywords: ['hod dashboard', 'hod home'],
+                path: '/dashboard/hod',
+                label: 'HOD Dashboard',
+                portal: 'hod'
+            },
+            {
+                keywords: ['incharge dashboard', 'incharge home', 'class incharge'],
+                path: '/dashboard/incharge',
+                label: 'Incharge Dashboard',
+                portal: 'incharge'
+            },
+            {
+                keywords: ['student dashboard', 'student home'],
+                path: '/dashboard/student',
+                label: 'Student Dashboard',
+                portal: 'student'
+            },
+            // Generic dashboard / home — resolves to current role's home
             {
                 keywords: ['dashboard', 'home', 'overview', 'main', 'start'],
-                path: role === 'hod' ? '/dashboard/hod' : '/dashboard/faculty',
-                label: 'Dashboard Overview'
+                path: isHOD ? '/dashboard/hod'
+                    : isFaculty ? '/dashboard/faculty'
+                    : isIncharge ? '/dashboard/incharge'
+                    : '/dashboard/student',
+                label: 'Dashboard',
+                portal: 'shared'
             },
         ];
 
-        let matchedCmd = null;
+        // ── Find matching command ────────────────────────────────────────────
+        let matchedCmd: (typeof commands)[number] | null = null;
         for (const cmd of commands) {
             if (cmd.keywords.some(k => text.includes(k))) {
                 matchedCmd = cmd;
@@ -156,20 +433,57 @@ export default function ERPAssistant() {
             }
         }
 
-        if (matchedCmd) {
-            const responseText = `✅ Opening ${matchedCmd.label}...`;
+        if (!matchedCmd) {
+            const roleLabel = role.charAt(0).toUpperCase() + role.slice(1);
             setTimeout(() => {
-                addMessage(responseText, 'bot');
-                setTimeout(() => {
-                    router.push(matchedCmd!.path);
-                    setIsOpen(false);
-                }, 900);
+                addMessage(
+                    `❓ I didn't understand that. Try commands like:\n` +
+                    (isHOD
+                        ? "• 'Open Academics'\n• 'Show Student Complaints'\n• 'Go to Faculty Requests'\n• 'Open Publications'\n• 'Staff Performance'"
+                        : isFaculty
+                        ? "• 'Open Academics'\n• 'Lesson Plan'\n• 'Mark Attendance'\n• 'Go to Resources'\n• 'Show Mentor'"
+                        : isIncharge
+                        ? "• 'Open Attendance'\n• 'Daily Test Marks'\n• 'Internal Marks 1'\n• 'Co-Curricular'\n• 'Academic Records'"
+                        : "• 'Open Attendance'\n• 'Show Results'\n• 'Circulars'\n• 'Apply'"),
+                    'bot'
+                );
             }, 400);
-        } else {
-            setTimeout(() => {
-                addMessage("❓ I didn't understand that. Try saying 'Go to Academics', 'Open Complaints', or 'Show Reports'.", 'bot');
-            }, 400);
+            return;
         }
+
+        // ── Role-based portal access check ──────────────────────────────────
+        // 'shared' commands are always allowed (path already resolved per role).
+        const portalMap: Record<string, string> = {
+            hod: 'HOD', faculty: 'Faculty', incharge: 'Incharge', student: 'Student'
+        };
+        const portalName = portalMap[role] || 'Faculty';
+
+        const isBlocked =
+            (matchedCmd.portal === 'hod'      && !isHOD) ||
+            (matchedCmd.portal === 'faculty'  && !isFaculty) ||
+            (matchedCmd.portal === 'incharge' && !isIncharge) ||
+            (matchedCmd.portal === 'student'  && !isStudent);
+
+        if (isBlocked) {
+            const targetPortal = portalMap[matchedCmd.portal] || matchedCmd.portal;
+            setTimeout(() => {
+                addMessage(
+                    `🚫 "${matchedCmd!.label}" belongs to the ${targetPortal} portal.\n` +
+                    `You are currently in the ${portalName} dashboard and do not have access to this page.`,
+                    'bot'
+                );
+            }, 400);
+            return;
+        }
+
+        // ── All checks passed — navigate ─────────────────────────────────────
+        setTimeout(() => {
+            addMessage(`✅ Opening ${matchedCmd!.label}...`, 'bot');
+            setTimeout(() => {
+                router.push(matchedCmd!.path);
+                setIsOpen(false);
+            }, 900);
+        }, 400);
     };
 
     const handleSend = () => {
@@ -196,6 +510,9 @@ export default function ERPAssistant() {
 
     // Don't render on server to prevent hydration issues
     if (!mounted) return null;
+
+    const role = user?.role?.toLowerCase() || 'faculty';
+    const suggestions = SUGGESTIONS[role] || SUGGESTIONS['faculty'];
 
     return (
         <div
@@ -249,7 +566,9 @@ export default function ERPAssistant() {
                                 <p style={{ fontWeight: 700, fontSize: '14px', margin: 0 }}>ERP Assistant</p>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '2px' }}>
                                     <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#34d399', animation: 'pulse 2s infinite' }} />
-                                    <span style={{ fontSize: '10px', opacity: 0.8, letterSpacing: '0.05em', textTransform: 'uppercase' }}>Online</span>
+                                    <span style={{ fontSize: '10px', opacity: 0.8, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                                        {role.charAt(0).toUpperCase() + role.slice(1)} Portal
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -301,6 +620,7 @@ export default function ERPAssistant() {
                                     boxShadow: msg.sender === 'bot' ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
                                     border: msg.sender === 'bot' ? '1px solid #e2e8f0' : 'none',
                                     fontWeight: 500,
+                                    whiteSpace: 'pre-line',
                                 }}>
                                     {msg.text}
                                 </div>
@@ -323,7 +643,7 @@ export default function ERPAssistant() {
                         )}
                     </div>
 
-                    {/* Suggestions */}
+                    {/* Suggestions — role-aware chips */}
                     <div style={{
                         padding: '8px 16px',
                         background: '#f1f5f9',
@@ -333,10 +653,10 @@ export default function ERPAssistant() {
                         flexShrink: 0,
                         borderTop: '1px solid #e2e8f0',
                     }}>
-                        {['Academics', 'Complaints', 'Reports', 'Profile'].map((s) => (
+                        {suggestions.map((s) => (
                             <button
-                                key={s}
-                                onClick={() => { addMessage(s, 'user'); processCommand(s.toLowerCase()); }}
+                                key={s.cmd}
+                                onClick={() => { addMessage(s.label, 'user'); processCommand(s.cmd); }}
                                 style={{
                                     padding: '4px 12px',
                                     background: 'white',
@@ -350,7 +670,7 @@ export default function ERPAssistant() {
                                     flexShrink: 0,
                                 }}
                             >
-                                {s}
+                                {s.label}
                             </button>
                         ))}
                     </div>

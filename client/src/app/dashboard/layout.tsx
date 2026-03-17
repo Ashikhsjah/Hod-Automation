@@ -12,10 +12,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const pathname = usePathname();
 
     useEffect(() => {
-        if (!loading && !user) {
-            router.push('/');
+        if (!loading) {
+            if (!user) {
+                router.push('/');
+                return;
+            }
+
+            // Role-based access control
+            const role = user.role;
+            if (pathname.startsWith('/dashboard/hod') && role !== 'hod') {
+                router.push('/dashboard/' + (role === 'class_incharge' ? 'faculty' : role));
+            } else if (pathname.startsWith('/dashboard/faculty') && role !== 'faculty' && role !== 'class_incharge') {
+                router.push('/dashboard/' + role);
+            } else if (pathname.startsWith('/dashboard/incharge') && role !== 'class_incharge') {
+                router.push('/dashboard/' + role);
+            } else if (pathname.startsWith('/dashboard/student') && role !== 'student') {
+                router.push('/dashboard/' + (role === 'class_incharge' ? 'faculty' : role));
+            }
         }
-    }, [user, loading, router]);
+    }, [user, loading, router, pathname]);
 
     if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center">Loading...</div>;
     if (!user) return null;
